@@ -32,14 +32,14 @@ class ipmi (
   include ::ipmi::install
   include ::ipmi::config
 
-  if ( ($::osfamily == 'Debian') and ($::operatingsystemmajrelease > 8) ) or
-       ($::osfamily == 'RedHat') and ($::operatingsystemmajrelease > 6) )
+  if ( (($::osfamily == 'Debian') and ($::operatingsystemmajrelease > 8)) or
+       (($::osfamily == 'RedHat') and ($::operatingsystemmajrelease > 6))
      ){
     class { '::ipmi::service::ipmi':
       ensure            => $service_ensure,
       enable            => $enable_ipmi,
       ipmi_service_name => $ipmi::params::ipmi_service_name,
-      notify            => Class['::ipmi::service::ipmievd']
+      notify            => Class['::ipmi::service::ipmievd'],
       subscribe         => Class['::ipmi::']
     }
   }
@@ -52,16 +52,20 @@ class ipmi (
   anchor { 'ipmi::begin': }
   anchor { 'ipmi::end': }
 
-  Anchor['ipmi::begin'] -> Class['::ipmi::install'] ~> Class['::ipmi::]
+  Anchor['ipmi::begin'] -> Class['::ipmi::install'] ~> Class['::ipmi::config']
     ~> Class['::ipmi::service::ipmievd']
     -> Anchor['ipmi::end']
+
+
+
   if $snmps {
     create_resources('ipmi::snmp', $snmps)
   }
+
   if $users {
     create_resources('ipmi::user', $users)
   }
+
   if $networks {
     create_resources('ipmi::network', $networks)
   }
-}
