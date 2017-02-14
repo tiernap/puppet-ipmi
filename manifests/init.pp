@@ -69,3 +69,4 @@ class ipmi (
   if $networks {
     create_resources('ipmi::network', $networks)
   }
+}
